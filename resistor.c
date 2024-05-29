@@ -11,6 +11,7 @@ char *singleColor = "bl";
 
 
 char *colors[] = {"bl", "br", "rd","or", "yl", "gr", "bu", "vi","gy", "wh" };
+float multipliers[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000};
 
 
 
@@ -65,11 +66,17 @@ int getColorNumberFromString(char *colorString)
     return colorNumber;
 }
 
-int getcolormultiplier()
+int getcolormultiplier(char *colorString)
 {
     int multiplier = -1;
-    for (int m = 0; m <10000; m++ );
-    int multiplying;
+    for (int m = 0; m < 10; m++ )
+    {
+        if (strcmp(colorString, colors[m]) == 0)
+        {
+            multiplier = m;
+        }
+    }
+    return multiplier;
 }
 
 int main()
@@ -78,7 +85,8 @@ int main()
     size_t size_copied;
     static char colorBuffer[MAX_NUMBER_OF_BAND][MAX_COLOR_LENGTH];
     static int bandNumbers[MAX_NUMBER_OF_BAND];
-    char* currentBuff = colorBuffer[0];
+    char* currentBuff = colorBuffer[0]; 
+    float multiplier;
     printf("current buff is: %p\n",currentBuff);
     int numberOfBandsEntered = 0;
     while (1)
@@ -112,6 +120,10 @@ int main()
         if(!conversionSuccessful){
             continue;
         }
+        
+        printf("The result for the colorband entered: ");
+        //int resistanceValue = (getColorNumberFromString * 10 + ) * multiplier;
+        //printf("Resistance value: %d ohms\n", resistanceValue);
 
         // int color_number = -1;
         // for (int k = 0; k < 3; k++)
