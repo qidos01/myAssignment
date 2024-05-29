@@ -69,6 +69,7 @@ int getcolormultiplier()
 {
     int multiplier = -1;
     for (int m = 0; m <10000; m++ );
+    int multiplying;
 }
 
 int main()
