@@ -2,51 +2,42 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #define MAX_COLOR_LENGTH 5
 #define MAX_NUMBER_OF_BAND 5
 #define SEPARATOR '-'
-#define COLOR_RANGE 10
-#define MULTIPLIER_RANGE 1000000
-char *singleColor = "bl";
+#define COLOR_RANGE 12
 
 
-char *colors[] = {"bl", "br", "rd","or", "yl", "gr", "bu", "vi","gy", "wh" };
-float multipliers[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000};
-
+char *colors[] = {"bl", "br", "rd","or", "yl", "gr", "bu", "vi","gy", "wh", "gd", "sl" };
+float multipliers[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 10, 1, 5, 10};
 
 
 int acceptInput(char** buffer, size_t* size_copied)
 {
-    printf("entered a color code\n");
+    printf("enter a color code\n");
     int result = getline(buffer, size_copied, stdin);
-    printf("what you entered is: %s and the size is:%lu\n",*buffer,strlen(*buffer));
     (*buffer)[strlen(*buffer)-1]='\0';
-    printf("what you entered is: %s and the size is:%lu\n",*buffer,strlen(*buffer));
+    printf("what you entered is: %s\n",*buffer);
     return result;
 }
 
 int insertInputToBuffer(char* input,char buffer[MAX_COLOR_LENGTH][MAX_NUMBER_OF_BAND])
 {
     size_t mLen = strlen(input);
-    printf("about to insertInputToBuffer, input lenght is: %d\n",mLen);
     int position = 0;
     int bufPosition = 0;
     int positionInBuffer = 0;
     char* currentBuff = buffer[bufPosition];
-    printf("current buff is: %p\n",currentBuff);
-    printf("current buff is: %p\n",buffer[0]);
     bool overflown = false;
     while(position < mLen){
-        printf("in while loop, position is: %d, mlen is: %d\n",position,mLen);
         while(input[position] != SEPARATOR && position < mLen){
             if(positionInBuffer < MAX_COLOR_LENGTH-1){
                 currentBuff[positionInBuffer++] = input[position];
             }
             position++;
         }
-        printf("separator found\n");
         currentBuff[positionInBuffer] = '\0';
-        printf("found string %s\n",currentBuff);
         currentBuff = buffer[++bufPosition];
         positionInBuffer = 0;
         position++;
@@ -66,17 +57,27 @@ int getColorNumberFromString(char *colorString)
     return colorNumber;
 }
 
-int getcolormultiplier(char *colorString)
-{
-    int multiplier = -1;
-    for (int m = 0; m < 10; m++ )
-    {
-        if (strcmp(colorString, colors[m]) == 0)
-        {
-            multiplier = m;
-        }
+int getRealNumbers( int *band, int numberOfBand){
+    int limit = numberOfBand-2;
+    int finalValue = 0;
+    for(int x = 0; x < limit; x++){
+        finalValue = band[x] + 10*(finalValue);
     }
-    return multiplier;
+    return finalValue;
+}
+
+float factorMultiplier(int RealNumber, int multiplier){
+    float result; 
+    float myPow = pow(10, multiplier);
+    result = RealNumber *  myPow;
+    return result;
+}
+
+float getPercentage(float fullValue, int percentage) {
+    float tolerance;
+    float percent = (percentage *1.0) / 100.0;
+    tolerance = fullValue * percent;
+    return tolerance;
 }
 
 int main()
@@ -87,7 +88,7 @@ int main()
     static int bandNumbers[MAX_NUMBER_OF_BAND];
     char* currentBuff = colorBuffer[0]; 
     float multiplier;
-    printf("current buff is: %p\n",currentBuff);
+
     int numberOfBandsEntered = 0;
     while (1)
     {
@@ -104,8 +105,8 @@ int main()
             if(strlen(colorBuffer[x]) > 0){
                 numberOfBandsEntered++;
             }
-            printf("color %d is: %s\n",x,colorBuffer[x]);
         }
+        
         printf("number of bands entered is: %d\n",numberOfBandsEntered);
         bool conversionSuccessful = true;
         for(int j=0;j<numberOfBandsEntered;j++){
@@ -121,25 +122,18 @@ int main()
             continue;
         }
         
-        printf("The result for the colorband entered: ");
-        //int resistanceValue = (getColorNumberFromString * 10 + ) * multiplier;
-        //printf("Resistance value: %d ohms\n", resistanceValue);
-
-        // int color_number = -1;
-        // for (int k = 0; k < 3; k++)
-        // {
-        //     if (strcmp(input, colors[k]) == 0)
-        //     {
-        //         color_number = k;
-        //     }
-        // }
-        // if (color_number < 0)
-        // {
-        //     printf("color not found\n");
-        // }
-        // else
-        // {
-        //     printf("color number is: %d\n", color_number);
-        // }
+        int fullValue = getRealNumbers(bandNumbers,numberOfBandsEntered);
+        
+        int multiplier = bandNumbers[numberOfBandsEntered-2];
+        
+        float fullValueWithMultiplier = factorMultiplier(fullValue,multiplier);
+        
+        int tolerance = bandNumbers[numberOfBandsEntered-1];
+        
+        float toleranceValue = getPercentage(fullValueWithMultiplier,tolerance);
+        
+        printf("Resistance value: %.1f ohms\n", fullValueWithMultiplier);
+        printf("The tolerance is between %.1f ohms or %.1f ohms",fullValueWithMultiplier+toleranceValue, fullValueWithMultiplier-toleranceValue);
     }
+    return 0;
 }
